@@ -1,0 +1,238 @@
+﻿@page
+@model Adv_Net_Assign2.Pages.GroceryList.IndexModel
+
+@{
+    ViewData["Title"] = "Grocery List";
+}
+
+<h1>Grocery List Using Ajax</h1>
+
+<ul id="grocerylist">
+</ul>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+            @Html.DisplayNameFor(model => model.GroceryListModel[0].ItemId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroceryListModel[0].ItemName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroceryListModel[0].Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroceryListModel[0].DateCreated)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroceryListModel[0].Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroceryListModel[0].Completed)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="grocerylistbody">
+    </tbody>
+
+</table>
+
+
+<div>
+
+    <hr />
+    <button id="postbutton" type="button" class="btn btn-primary">Create Item</button>
+    <div id="createform" style="display: none">
+        <form id="createBookForm" class="form">
+            <h4>Add new Item to Grocery List</h4>
+            
+            <div class="form-group">
+                <label for="itemname">Item Name</label>
+                <input type="text" class="form-control" id="itemname" placeholder="ItemName" />
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input type="text" class="form-control" id="description" placeholder="Description" />
+            </div>
+            <div class="form-group">
+                <label for="datecreated">Date Created</label>
+                <input type="date" class="form-control" id="datecreated" placeholder="DateCreated" />
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" class="form-control" id="quantity" placeholder="Quantity" />
+            </div>
+            <div class="form-group">
+                <label for="purchased">Purchased</label>
+                <input type="checkbox" class="form-control" id="checkbox1" placeholder="Completed"  />
+            </div>
+            <button id ="creatsubmit"type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+
+        $(function () {
+            loadData();
+
+            $("#createBookForm").submit(function () {
+                createItem();
+                return false;
+            });
+        });
+
+        function loadData() {
+            $.ajax({
+                url: "api/GroceryListModels",
+                dataType: 'json',
+                contentType: 'application/json',
+                method: 'GET'
+            }).done(function (responseJSON, status, xhr) {
+                // process the response when status code is 200-299
+                buildGroceryList(responseJSON);
+                console.log('test message')
+                console.log(responseJSON);
+            }).fail(function (xhr, status, error) {
+                // deal with error from server (status code 400-599)
+                alert("There was an error retrieving the data");
+            });
+        }
+
+        function buildGroceryList(groceryitem) {
+            $("#grocerylistbody").empty();
+            $.each(groceryitem, function (index, item) {
+                @*var li = $('<li item-id="' + item.itemId + '"></li>');
+                $(li).text(item.itemName + ' - ' + item.quantity);
+                $(li).append(' <a href="#" class="pull-right item-delete">delete</a>')
+                $("#grocerylist").append(li);*@
+                var td = $('<tr><td id="ID" item-id=' + item.itemId + '>' + item.itemId + '</td><td id=' + item.itemName + '">' + item.itemName + '</td><td id=' + item.description + '">' + item.description + '</td><td id=' + item.dateCreated + '">' + item.dateCreated + '</td><td id=' + item.quantity + '">' + item.quantity + '</td><td id=' + item.completed + '">' + item.completed + '</td></tr>')
+                $(td).append(' <a href="#" class="pull-right item-delete">delete</a>')
+                $(td).append(' <a href="#" class="pull-right item-complete">Mark Complete</a>')
+                console.log(td)
+                $("#grocerylistbody").append(td)
+            });
+        }
+
+
+        function deleteItem(itemId) {
+            $.ajax({
+                url: '/api/grocerylistmodels/' + itemId,
+                dataType: 'json',
+                contentType: 'application/json',
+                method: 'DELETE',
+            }).done(function (responseData, status, xhr) {
+                loadData(); // RELOAD THE BOOK DATA
+            }).fail(function (xhr, status, error) {
+                alert("There was an error deleting your item");
+            });
+        }
+
+        
+
+        $("#grocerylistbody").on('click', 'a.item-delete', function () {
+            //$(this) is the element (<a>) being clicked
+            // traverse to the parent li element and get
+            // the custom attribute value which is the ID
+
+            var id = document.getElementById("ID").getAttribute("item-id");
+
+            console.log(id)
+            // call the delete method
+            if (confirm("Are you sure you want to delete this item")) {
+                deleteItem(id);
+            }
+            return false;
+        });
+
+        $("#grocerylistbody").on('click', 'a.item-complete', function () {
+
+            var id = document.getElementById("ID").getAttribute("item-id");
+            if (confirm("Are you sure you want to Mark this item as completed")) {
+                updateItem(id);
+            }
+            return false;
+
+
+        });
+
+         
+
+         function updateItem(itemId) {
+             $.ajax({
+                 url: '/api/grocerylistmodels/markcomplete/' + itemId,
+                 dataType: 'json',
+                 contentType: 'application/json',
+                 method: 'PUT',
+             }).done(function (responseData, status, xhr) {
+                 loadData(); // RELOAD THE BOOK DATA
+             }).fail(function (xhr, status, error) {
+                 alert("There was an error Updating your item");
+             });
+            }
+
+        
+
+        $("#postbutton").click(function () {
+            @*console.log('im here');*@
+            var x = document.getElementById("createform");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+
+        })
+        
+        $("#creatsubmit").click(function () {
+            @* console.log('im here');*@
+            var x = document.getElementById("createform");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+
+        })
+
+       
+        function createItem() {
+            var requestData = {
+                itemName: $("#itemname").val(),
+                description: $("#description").val(),
+                dateCreated: $("#datecreated").val(),
+                quantity: parseInt($("#quantity").val()),
+                completed: $('#checkbox1').prop('checked')
+
+            };
+
+            console.log(requestData)
+            $.ajax({
+                url: '/api/grocerylistmodels',
+                dataType: 'json',
+                contentType: 'application/json',
+                method: 'POST',
+                data: JSON.stringify(requestData)
+            }).done(function (responseData, status, xhr) {
+                loadData(); // RELOAD THE BOOK DATA
+                $("#itemname").val(""),
+                $("#description").val(""),
+                $("#datecreated").val(""),
+                $("#quantity").val(""),
+                $("#completed").val("")
+
+            }).fail(function (xhr, status, error) {
+                alert("There was an error saving your Item");
+            });
+        }
+
+
+
+    </script>
+}
+

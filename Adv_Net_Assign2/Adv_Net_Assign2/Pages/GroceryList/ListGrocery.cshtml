@@ -1,0 +1,60 @@
+﻿@page
+@model Adv_Net_Assign2.Pages.GroceryList.ListGroceryModel
+
+@{
+    ViewData["Title"] = "ListGrocery";
+}
+
+<h1>ListGrocery</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.GroceryListModel[0].ItemName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroceryListModel[0].Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroceryListModel[0].DateCreated)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroceryListModel[0].Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroceryListModel[0].Completed)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.GroceryListModel) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ItemName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateCreated)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Completed)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.ItemId">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.ItemId">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.ItemId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
